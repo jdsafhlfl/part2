@@ -30,6 +30,7 @@ const Course = (props) =>{
     <div>
       <h1>{props.course.name}</h1>
       {props.course.parts.map(part => <p key={part.id}>{part.name} {part.exercises}</p>)}
+      <h4>total of {props.course.parts.reduce((sum, cur) => sum = sum + cur.exercises, 0)} exercises</h4>
     </div>
   )
 }
