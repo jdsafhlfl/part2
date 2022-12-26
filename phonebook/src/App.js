@@ -20,7 +20,17 @@ const App = () => {
     const names = persons.map(p => p.name)
     const ifFind = names.includes(newName)
     if (ifFind === true) {
-      alert(newName + ' is already added to phonebook')
+      const existPerson = persons.find(p => p.name === newName)
+      if(existPerson.number === newNumber){
+        alert(newName + ' is already added to phonebook')
+      }else{
+        if(window.confirm(newName+" is already added to phonebook, replace the old number with a new one?")){
+          phoneServices.updatePhonenote(existPerson.id, {name:newName, number:newNumber})
+                       .then(response =>{
+                        setPersons(persons.map(p => p.id===existPerson.id? response.data : p))
+                       })
+        }
+      }
     } else {
       const newPerson = { name: newName, number: newNumber }
       phoneServices.addPhonenote(newPerson)
