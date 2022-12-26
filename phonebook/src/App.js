@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import axios from 'axios'
+import phoneServices from './services'
 
 const App = () => {
   const [persons, setPersons] = useState([])
@@ -9,7 +9,7 @@ const App = () => {
 
 
   useEffect( () => {
-    axios.get('http://localhost:3001/persons')
+         phoneServices.getPhonenote()
          .then(response => {
           setPersons(response.data)
          })
@@ -23,7 +23,7 @@ const App = () => {
       alert(newName + ' is already added to phonebook')
     } else {
       const newPerson = {name:newName, number:newNumber}
-      axios.post('http://localhost:3001/persons', newPerson)
+      phoneServices.addPhonenote(newPerson)
            .then(response =>{
             setPersons(persons.concat(response.data))
            })
