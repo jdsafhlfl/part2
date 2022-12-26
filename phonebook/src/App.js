@@ -8,12 +8,12 @@ const App = () => {
   const [filterName, setFilter] = useState('')
 
 
-  useEffect( () => {
-         phoneServices.getPhonenote()
-         .then(response => {
-          setPersons(response.data)
-         })
-  },[])
+  useEffect(() => {
+    phoneServices.getPhonenote()
+      .then(response => {
+        setPersons(response.data)
+      })
+  }, [])
 
   const addPerson = (event) => {
     event.preventDefault()
@@ -22,11 +22,11 @@ const App = () => {
     if (ifFind === true) {
       alert(newName + ' is already added to phonebook')
     } else {
-      const newPerson = {name:newName, number:newNumber}
+      const newPerson = { name: newName, number: newNumber }
       phoneServices.addPhonenote(newPerson)
-           .then(response =>{
-            setPersons(persons.concat(response.data))
-           })
+        .then(response => {
+          setPersons(persons.concat(response.data))
+        })
     }
     setNewName('')
     setNewNumber('')
@@ -53,7 +53,7 @@ const App = () => {
       <h2>Add a new</h2>
       <PersonForm name={newName} num={newNumber} nameFunc={handleNewName} numFunc={handleNewNumber} subFunc={addPerson} />
       <h2>Numbers</h2>
-      <Persons filterPersons={filterPersons} />
+      <Persons filterPersons={filterPersons} allPersons={persons} setPersons={setPersons} />
     </div>
   )
 }
@@ -84,8 +84,20 @@ const PersonForm = (props) => {
 }
 
 const Persons = (props) => {
+
+  const deletePerson = (name) => {
+    if (window.confirm("Delete " + name+"?")) {
+      const deletePerson = props.allPersons.find(p => p.name === name)
+      const remainPerson = props.allPersons.filter(p => p.name !== name)
+      phoneServices.deletePhonenote(deletePerson.id)
+                   .then(()=>{
+                    props.setPersons(remainPerson)
+                   })
+    }
+  }
+
   return (
-    props.filterPersons.map(p => <p key={p.name}>{p.name} {p.number}</p>)
+    props.filterPersons.map(p => <p key={p.name}>{p.name} {p.number} <button onClick={function () { deletePerson(p.name) }}>delete</button> </p>)
   )
 }
 
