@@ -6,7 +6,7 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [filterName, setFilter] = useState('')
-
+  const [message, setMessage] = useState('')
 
   useEffect(() => {
     phoneServices.getPhonenote()
@@ -21,14 +21,18 @@ const App = () => {
     const ifFind = names.includes(newName)
     if (ifFind === true) {
       const existPerson = persons.find(p => p.name === newName)
-      if(existPerson.number === newNumber){
+      if (existPerson.number === newNumber) {
         alert(newName + ' is already added to phonebook')
-      }else{
-        if(window.confirm(newName+" is already added to phonebook, replace the old number with a new one?")){
-          phoneServices.updatePhonenote(existPerson.id, {name:newName, number:newNumber})
-                       .then(response =>{
-                        setPersons(persons.map(p => p.id===existPerson.id? response.data : p))
-                       })
+      } else {
+        if (window.confirm(newName + " is already added to phonebook, replace the old number with a new one?")) {
+          phoneServices.updatePhonenote(existPerson.id, { name: newName, number: newNumber })
+            .then(response => {
+              setPersons(persons.map(p => p.id === existPerson.id ? response.data : p))
+            })
+          setMessage("Updated " + newName)
+          setTimeout(() =>{
+            setMessage('')
+          },5000)
         }
       }
     } else {
@@ -37,6 +41,10 @@ const App = () => {
         .then(response => {
           setPersons(persons.concat(response.data))
         })
+      setMessage("Added " + newName)
+      setTimeout(() =>{
+        setMessage('')
+      },5000)
     }
     setNewName('')
     setNewNumber('')
@@ -54,11 +62,19 @@ const App = () => {
     setFilter(event.target.value)
   }
 
+  // const myDelay = (num) => {
+  //   let current = new Date().getTime()
+  //   for (let tmp = current; tmp < current + num; tmp++) {
+  //     tmp = new Date().getTime()
+  //   }
+  // }
+
   const filterPersons = persons.filter(p => p.name.toLowerCase().includes(filterName.toLowerCase()))
 
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={message} />
       <Filter value={filterName} function={handleFilter} />
       <h2>Add a new</h2>
       <PersonForm name={newName} num={newNumber} nameFunc={handleNewName} numFunc={handleNewNumber} subFunc={addPerson} />
@@ -96,13 +112,13 @@ const PersonForm = (props) => {
 const Persons = (props) => {
 
   const deletePerson = (name) => {
-    if (window.confirm("Delete " + name+"?")) {
+    if (window.confirm("Delete " + name + "?")) {
       const deletePerson = props.allPersons.find(p => p.name === name)
       const remainPerson = props.allPersons.filter(p => p.name !== name)
       phoneServices.deletePhonenote(deletePerson.id)
-                   .then(()=>{
-                    props.setPersons(remainPerson)
-                   })
+        .then(() => {
+          props.setPersons(remainPerson)
+        })
     }
   }
 
@@ -111,4 +127,25 @@ const Persons = (props) => {
   )
 }
 
+const Notification = (props) => {
+  const messageStyle =  {
+    color: 'green',
+    fontSize:25,
+    backgroundColor:'#CFCECE',
+    margin: '10px 2px 30px 2px',
+    border: 'solid green 3px',
+    padding: '10px 10px 10px 10px',
+    borderRadius:8
+  }
+
+  if (props.message === '') {
+    return null
+  } else {
+    return (
+      <div style={messageStyle}>
+        {props.message}
+      </div>
+    )
+  }
+}
 export default App
