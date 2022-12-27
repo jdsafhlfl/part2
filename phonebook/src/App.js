@@ -7,6 +7,7 @@ const App = () => {
   const [newNumber, setNewNumber] = useState('')
   const [filterName, setFilter] = useState('')
   const [message, setMessage] = useState('')
+  const [errorMessage, setErrorMessage] = useState('')
 
   useEffect(() => {
     phoneServices.getPhonenote()
@@ -28,11 +29,18 @@ const App = () => {
           phoneServices.updatePhonenote(existPerson.id, { name: newName, number: newNumber })
             .then(response => {
               setPersons(persons.map(p => p.id === existPerson.id ? response.data : p))
+              setMessage("Updated " + newName)
+              setTimeout(() =>{
+                setMessage('')
+              },5000)
             })
-          setMessage("Updated " + newName)
-          setTimeout(() =>{
-            setMessage('')
-          },5000)
+            .catch(error =>{
+              setErrorMessage("Information of "+newName+" has already been removed from server")
+              setTimeout( ()=>{
+                setErrorMessage('')
+
+              },5000)
+            })
         }
       }
     } else {
@@ -74,6 +82,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <ErrorNotification message={errorMessage} />
       <Notification message={message} />
       <Filter value={filterName} function={handleFilter} />
       <h2>Add a new</h2>
@@ -148,4 +157,27 @@ const Notification = (props) => {
     )
   }
 }
+
+const ErrorNotification = (props) => {
+  const messageStyle =  {
+    color: 'red',
+    fontSize:25,
+    backgroundColor:'#CFCECE',
+    margin: '10px 2px 30px 2px',
+    border: 'solid red 3px',
+    padding: '10px 10px 10px 10px',
+    borderRadius:8
+  }
+
+  if (props.message === '') {
+    return null
+  } else {
+    return (
+      <div style={messageStyle}>
+        {props.message}
+      </div>
+    )
+  }
+}
+
 export default App
